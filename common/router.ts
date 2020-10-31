@@ -1,5 +1,26 @@
 import * as restify from 'restify'
+import {EventEmitter} from 'events'
 
-export abstract class Router {
+export abstract class Router extends EventEmitter {
+    
+    constructor(){
+        super()
+        this.on('beforeRender', document => {
+            document.password = undefined
+        })
+    }
+
     abstract applyRoutes(application: restify.Server)
+
+    render(response: restify.Response, next: restify.Next){
+        return (document) => {
+            if(document){
+                this.emit('beforeRender', document)
+                response.json(document)
+            }else{
+                response.send(404)
+            }
+            return next()
+        }
+    }
 }
