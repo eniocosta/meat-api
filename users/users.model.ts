@@ -1,5 +1,7 @@
 import * as mongoose from 'mongoose'
-
+import {validateCPF} from '../common/validators'
+import * as bcrypt from 'bcrypt'
+import {environment} from '../common/environment'
 export interface IUserModel extends mongoose.Document {
     name: string,
     email: string,
@@ -8,37 +10,67 @@ export interface IUserModel extends mongoose.Document {
 
 const userSchema = new mongoose.Schema({
    name:{
-       type: String
+       type: String,
+       required: true,
+       maxlength: 80,
+       minlength: 3,
    },
    email: {
        type: String,
-       unique: true
+       unique: true,
+       match: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+       required: true
    },
    password: {
        type: String,
-       select: false
+       select: false,
+       required: true
+   },
+   gender: {
+       type: String,
+       required: false,
+       enum: ['Male', 'Female']
+   },
+   cpf: {
+       type: String,
+       required: false,
+       validate: {
+           validator: validateCPF,
+           message: '{PATH}: Invalid CPF ({VALUE})'
+       }
    } 
 })
 
+const hashPassword = (obj, next) => {
+    bcrypt.hash(obj.password, environment.security.saltRounds)
+                .then(hash => {
+                    obj.password = hash
+                    next()
+                }).catch(next)
+}
+
+const saveMiddleware = function(next){
+    const user = this
+    if(!user.isModified('password')){
+        next()
+    }else{
+        hashPassword(user, next)
+    }
+}
+
+const updateMiddleware = function(next){
+    if(!this.getUpdate().password){
+        next()
+    }else{
+        hashPassword(this.getUpdate(), next)
+    }
+}
+
+//Registrando middleware para validar dados antes de salvar (documento)
+userSchema.pre('save', saveMiddleware)
+
+//Registrando middleware para validar dados antes de salvar (query)
+userSchema.pre('findOneAndUpdate', updateMiddleware)
+userSchema.pre('update', updateMiddleware)
+
 export const User = mongoose.model<IUserModel>('User', userSchema)
-
-// const users = [
-//     { id: '1', name: 'Tony Stark', email: 'stark@marvel.com' },
-//     { id: '2', name: 'Peter Parker', email: 'peter@marvel.com' },
-//     { id: '3', name: 'Bruce Banner', email: 'bruce@marvel.com' }
-// ]
-
-// export class User {
-//     //Utilizado para testes
-//     static findAll(): Promise<any[]>{
-//         return Promise.resolve(users)
-//     }
-
-//     static findById(id: string): Promise<any>{
-//         return new Promise(resolve => {
-//             const filtered = users.filter(user => user.id === id)
-//             let user = filtered.length > 0 ? filtered[0] : null
-//             resolve(user)
-//         })
-//     }
-// }
