@@ -3,13 +3,6 @@ import {NotFoundError} from 'restify-errors'
 import {EventEmitter} from 'events'
 
 export abstract class Router extends EventEmitter {
-    
-    constructor(){
-        super()
-        this.on('beforeRender', document => {
-            document.password = undefined
-        })
-    }
 
     abstract applyRoutes(application: restify.Server)
 
@@ -22,6 +15,19 @@ export abstract class Router extends EventEmitter {
                 throw new NotFoundError('Documento não encontrado')
             }
             return next()
+        }
+    }
+
+    renderAll(response: restify.Response, next: restify.Next){
+        return (documents: any[]) => {
+            if(documents){
+                documents.forEach(document => {
+                    this.emit('beforeRender', document)
+                })
+                response.json(documents)
+            }else{
+                response.json([])
+            }
         }
     }
 }

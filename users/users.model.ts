@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose'
 import {validateCPF} from '../common/validators'
 import * as bcrypt from 'bcrypt'
 import {environment} from '../common/environment'
-export interface IUserModel extends mongoose.Document {
+export interface User extends mongoose.Document {
     name: string,
     email: string,
     password: string
@@ -50,7 +50,7 @@ const hashPassword = (obj, next) => {
 }
 
 const saveMiddleware = function(next){
-    const user = this
+    const user: User = this
     if(!user.isModified('password')){
         next()
     }else{
@@ -73,4 +73,4 @@ userSchema.pre('save', saveMiddleware)
 userSchema.pre('findOneAndUpdate', updateMiddleware)
 userSchema.pre('update', updateMiddleware)
 
-export const User = mongoose.model<IUserModel>('User', userSchema)
+export const User = mongoose.model<User>('User', userSchema)
