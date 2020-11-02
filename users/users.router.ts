@@ -9,7 +9,7 @@ class UsersRouter extends ModelRouter<User>{
         this.on('beforeRender', document=>{
           document.password = undefined
         })
-      }
+    }
 
     applyRoutes(application: restify.Server){
         application.get('/users', this.findAll)
