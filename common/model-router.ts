@@ -69,11 +69,6 @@ export abstract class ModelRouter<D extends mongoose.Document> extends Router{
                                 url: req.url
                             }))
                     ).catch(next)
-        // this.model.find()
-        //     .skip(skip)
-        //     .limit(this.pageSize)
-        //     .then(this.renderAll(resp, next, {page}))
-        //     .catch(next)
     }
 
     findById = (req, resp, next) => {
@@ -94,9 +89,13 @@ export abstract class ModelRouter<D extends mongoose.Document> extends Router{
         this.model.update({_id:req.params.id}, req.body, options).exec()
             .then(result => {
                 if(result.n){
-                    const document = this.model.findById(req.params.id).exec().then(findResult => {
-                        return findResult
-                    })
+                    // return this.prepareOne(this.model.findById(req.params.id))
+                    const document = this.prepareOne(this.model.findById(req.params.id))
+                                        .exec()
+                                        .then(findResult => {
+                                            return findResult
+                                        })
+                    return document;
                 }else{
                     throw new NotFoundError('Documento não encontrado')
                 }

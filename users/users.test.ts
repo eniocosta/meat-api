@@ -115,37 +115,6 @@ test('delete /users:/id', ()=>{
         }).catch(fail)
 })
 
-test('patch /users/aaaa - not found', ()=>{
-    return request(address)
-        .patch(`/users/aaaa`)
-        .then(response => {
-            expect(response.status).toBe(404)
-        }).catch(fail)
-})
-
-test('patch /users/:id', () => {
-    return request(address)
-        .post('/users')
-        .send({
-            name: 'Thor',
-            email: 'thor@marvel.com',
-            password: 'thor'
-        })
-        .then(response => request(address)
-                          .patch(`/users/${response.body._id}`)
-                          .send({
-                              email: 'asgard@marvel.com'
-                          }))
-        .then(response => {
-            expect(response.status).toBe(200)
-            expect(response.body._id).toBeDefined()
-            expect(response.body.name).toBe('Thor')
-            expect(response.body.email).toBe('asgard@marvel.com')
-            expect(response.body.password).toBeUndefined()
-        })
-        .catch(fail)
-})
-
 test('post /users - cpf invalido', ()=>{
     return request(address)
         .post('/users')
@@ -185,4 +154,70 @@ test('post /users - email duplicado', ()=>{
             expect(response.body.message).toContain('E11000 duplicate key')
         })
         .catch(fail)
+})
+
+test('patch /users/aaaa - not found', ()=>{
+    return request(address)
+        .patch(`/users/aaaa`)
+        .then(response => {
+            expect(response.status).toBe(404)
+        }).catch(fail)
+})
+
+test('patch /users/:id', () => {
+    return request(address)
+        .post('/users')
+        .send({
+            name: 'Thor',
+            email: 'thor@marvel.com',
+            password: 'thor'
+        })
+        .then(response => request(address)
+                          .patch(`/users/${response.body._id}`)
+                          .send({
+                              email: 'asgard@marvel.com'
+                          }))
+        .then(response => {
+            expect(response.status).toBe(200)
+            expect(response.body._id).toBeDefined()
+            expect(response.body.name).toBe('Thor')
+            expect(response.body.email).toBe('asgard@marvel.com')
+            expect(response.body.password).toBeUndefined()
+        })
+        .catch(fail)
+})
+
+test('put /users/aaaa - not found', () => {
+    return request(address)
+        .put(`/users/aaaa`)
+        .then(response => {
+            expect(response.status).toBe(404)
+        }).catch(fail)
+})
+  
+test('put /users/:id', ()=>{
+    return request(address)
+        .post('/users')
+        .send({
+            name: 'Groot',
+            email: 'iamgroot@marvel.com',
+            password: '123456',
+            cpf: '967.361.490-37',
+            gender: 'Male'
+        }).then(response => request(address)
+            .put(`/users/${response.body._id}`)
+            .send({
+                name: 'Groot Baby',
+                email: 'iamgroot@marvel.com',
+                password: '123456',
+                cpf: '967.361.490-37'
+            }))
+        .then(response=>{
+            expect(response.status).toBe(200)
+            expect(response.body.name).toBe('Groot Baby')
+            expect(response.body.email).toBe('iamgroot@marvel.com')
+            expect(response.body.cpf).toBe('967.361.490-37')
+            expect(response.body.gender).toBeUndefined()
+            expect(response.body.password).toBeUndefined()
+        }).catch(fail)
 })
