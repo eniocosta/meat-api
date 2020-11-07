@@ -2,7 +2,8 @@ import 'jest'
 import * as mongoose from 'mongoose'
 import * as request from 'supertest'
 
-let address: string = (<any>global).address
+const address: string = (<any>global).address
+const auth: string = (<any>global).auth
 
 test('get /reviews', () => {
     return request(address)
@@ -26,6 +27,7 @@ test('get /reviews/aaaa - not found', () => {
 test('post /reviews', ()=>{
     return request(address)
         .post('/reviews')
+        .set('Authorization', auth)
         .send({
             date: '2020-11-04T23:53:00',
             rating: 4,

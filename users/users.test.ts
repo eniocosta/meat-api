@@ -1,11 +1,13 @@
 import 'jest'
 import * as request from 'supertest'
 
-let address: string = (<any>global).address
+const address: string = (<any>global).address
+const auth: string = (<any>global).auth
 
 test('get /users', () =>{
     return request(address)
         .get('/users')
+        .set('Authorization', auth)
         .then(response => {
             expect(response.status).toBe(200)
             expect(response.body.items).toBeInstanceOf(Array)
@@ -15,6 +17,7 @@ test('get /users', () =>{
 test('post /users', () =>{
     return request(address)
         .post('/users')
+        .set('Authorization', auth)
         .send({
             name: 'Clint Barton',
             email: 'barton@marvel.com',
@@ -34,6 +37,7 @@ test('post /users', () =>{
 test('post /users - nome obrigatorio', () =>  {
     return request(address)
         .post('/users')
+        .set('Authorization', auth)
         .send({
             email: 'antman@marvel.com',
             password: '123456',
@@ -50,6 +54,7 @@ test('post /users - nome obrigatorio', () =>  {
 test('get /users/aaaa - not found', () => {
     return request(address)
         .get('/users/aaaa')
+        .set('Authorization', auth)
         .then(response => {
             expect(response.status).toBe(404)
         }).catch(fail)
@@ -58,6 +63,7 @@ test('get /users/aaaa - not found', () => {
 test('get /users - findByEmail', () => {
     return request(address)
         .post('/users')
+        .set('Authorization', auth)
         .send({
             name: 'Scott Lang',
             email: 'antman@marvel.com',
@@ -76,6 +82,7 @@ test('get /users - findByEmail', () => {
 test('get /users/:id', ()=>{
     return request(address)
         .post('/users')
+        .set('Authorization', auth)
         .send({
             name: 'T"Challa',
             email: 'pantera@marvel.com',
@@ -95,6 +102,7 @@ test('get /users/:id', ()=>{
 test('delete /users/aaaa - not found', () => {
     return request(address)
         .delete(`/users/aaaa`)
+        .set('Authorization', auth)
         .then(response => {
             expect(response.status).toBe(404)
         }).catch(fail)
@@ -103,6 +111,7 @@ test('delete /users/aaaa - not found', () => {
 test('delete /users:/id', ()=>{
     return request(address)
         .post('/users')
+        .set('Authorization', auth)
         .send({
             name: 'Peter Quill',
             email: 'starlord@marvel.com',
@@ -118,6 +127,7 @@ test('delete /users:/id', ()=>{
 test('post /users - cpf invalido', ()=>{
     return request(address)
         .post('/users')
+        .set('Authorization', auth)
         .send({
             name: 'Gamora',
             email: 'gamora@marvel.com',
@@ -136,6 +146,7 @@ test('post /users - cpf invalido', ()=>{
 test('post /users - email duplicado', ()=>{
     return request(address)
         .post('/users')
+        .set('Authorization', auth)
         .send({
             name: 'Rocket',
             email: 'guardao1@marvel.com',
@@ -159,6 +170,7 @@ test('post /users - email duplicado', ()=>{
 test('patch /users/aaaa - not found', ()=>{
     return request(address)
         .patch(`/users/aaaa`)
+        .set('Authorization', auth)
         .then(response => {
             expect(response.status).toBe(404)
         }).catch(fail)
@@ -167,6 +179,7 @@ test('patch /users/aaaa - not found', ()=>{
 test('patch /users/:id', () => {
     return request(address)
         .post('/users')
+        .set('Authorization', auth)
         .send({
             name: 'Thor',
             email: 'thor@marvel.com',
@@ -190,6 +203,7 @@ test('patch /users/:id', () => {
 test('put /users/aaaa - not found', () => {
     return request(address)
         .put(`/users/aaaa`)
+        .set('Authorization', auth)
         .then(response => {
             expect(response.status).toBe(404)
         }).catch(fail)
@@ -198,6 +212,7 @@ test('put /users/aaaa - not found', () => {
 test('put /users/:id', ()=>{
     return request(address)
         .post('/users')
+        .set('Authorization', auth)
         .send({
             name: 'Groot',
             email: 'iamgroot@marvel.com',
