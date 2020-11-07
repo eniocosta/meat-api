@@ -5,11 +5,14 @@ import {environment} from '../common/environment'
 export interface User extends mongoose.Document {
     name: string,
     email: string,
-    password: string
+    password: string,
+    cpf: string,
+    gender: string,
+    matches(password: string): boolean
 }
 
 export interface UserModel extends mongoose.Model<User>{
-    findByEmail(email: string): Promise<User>
+    findByEmail(email: string, projection?: string): Promise<User>
 }
 
 const userSchema = new mongoose.Schema({
@@ -45,8 +48,13 @@ const userSchema = new mongoose.Schema({
    } 
 })
 
-userSchema.statics.findByEmail = function(email: string){
-    return this.findOne({email}) // {email: email}
+userSchema.statics.findByEmail = function(email: string, projection: string){
+    //projection quais campos extras eu quero ou não
+    return this.findOne({email}, projection)
+}
+
+userSchema.methods.matches = function(password: string): boolean {
+    return bcrypt.compareSync(password, this.password)
 }
 
 const hashPassword = (obj, next) => {
