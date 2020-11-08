@@ -3,6 +3,7 @@ import * as restify from 'restify'
 import * as mongoose from 'mongoose'
 
 import {environment} from '../common/environment'
+import {logger} from '../common/logger'
 import {Router} from '../common/router'
 import {mergePatchBodyParser} from './merge-patch.parsr'
 import {handleError} from './error.handler'
@@ -25,15 +26,20 @@ export class Server {
                 const options: restify.ServerOptions = {
                     name: 'meat-api',
                     version: '1.0.0',
+                    log: logger
                 }
 
-                if(environment.security.enagleHTTPS){
+                if(environment.security.enableHTTPS){
                     options.certificate = fs.readFileSync(environment.security.certificate),
                     options.key = fs.readFileSync(environment.security.keyCertificate)
                 }
 
                 this.application = restify.createServer(options)
                 
+                this.application.pre(restify.plugins.requestLogger({
+                    log: logger
+                }))
+
                 this.application.use(restify.plugins.queryParser())
                 this.application.use(restify.plugins.bodyParser())
                 this.application.use(mergePatchBodyParser)
@@ -50,6 +56,20 @@ export class Server {
                 })
 
                 this.application.on('restifyError', handleError)
+
+                //(req, resp, route, error)
+                /* AUDIT LOGGER
+                this.application.on('after', restify.plugins.auditLogger({
+                    log: logger,
+                    event: 'after',
+                    server: this.application
+                }))
+
+                this.application.on('audit', data => {
+                    //Impelentar meu próprio log (salvar em arquivo..., remover informações sensiveis (token, password))
+                })
+                */
+
 
             } catch (error) {
                 reject(error)
