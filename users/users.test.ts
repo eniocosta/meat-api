@@ -70,6 +70,7 @@ test('get /users - findByEmail', () => {
             password: '123456',
         }).then(response => request(address)
             .get('/users')
+            .set('Authorization', auth)
             .query({email: 'antman@marvel.com'}))
         .then(response => {
             expect(response.status).toBe(200)
@@ -89,7 +90,8 @@ test('get /users/:id', ()=>{
             password: 'blackpanter',
             cpf: '089.705.860-75'
         }).then(response => request(address)
-            .get(`/users/${response.body._id}`))
+            .get(`/users/${response.body._id}`)
+            .set('Authorization', auth))
         .then(response => {
             expect(response.status).toBe(200)
             expect(response.body.name).toBe('T"Challa')
@@ -118,7 +120,8 @@ test('delete /users:/id', ()=>{
             password: '123456',
             cpf: '291.270.710-22'
         }).then(response => request(address)
-            .delete(`/users/${response.body._id}`))
+            .delete(`/users/${response.body._id}`)
+            .set('Authorization', auth))
         .then(response => {
             expect(response.status).toBe(204)
         }).catch(fail)
@@ -154,6 +157,7 @@ test('post /users - email duplicado', ()=>{
             cpf: '290.692.580-21'
         }).then(response => request(address)
             .post('/users')
+            .set('Authorization', auth)
             .send({
                 name: 'Drax O Destruidor',
                 email: 'guardao1@marvel.com',
@@ -187,6 +191,7 @@ test('patch /users/:id', () => {
         })
         .then(response => request(address)
                           .patch(`/users/${response.body._id}`)
+                          .set('Authorization', auth)
                           .send({
                               email: 'asgard@marvel.com'
                           }))
@@ -221,6 +226,7 @@ test('put /users/:id', ()=>{
             gender: 'Male'
         }).then(response => request(address)
             .put(`/users/${response.body._id}`)
+            .set('Authorization', auth)
             .send({
                 name: 'Groot Baby',
                 email: 'iamgroot@marvel.com',
